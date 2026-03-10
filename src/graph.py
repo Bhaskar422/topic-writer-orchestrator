@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from langgraph.graph import StateGraph, START, END
 
 from src.state import AgentState
+from src.agents.router import router_agent
 from src.agents.researcher import researcher_agent
 from src.agents.writer import writer_agent
 from src.agents.reviewer import reviewer_agent
@@ -29,12 +30,14 @@ def increment_revision(state: AgentState) -> dict:
 def build_graph():
     graph = StateGraph(AgentState)
 
+    graph.add_node("router", router_agent)
     graph.add_node("researcher", researcher_agent)
     graph.add_node("writer", writer_agent)
     graph.add_node("reviewer", reviewer_agent)
     graph.add_node("increment_revision", increment_revision)
 
-    graph.add_edge(START, "researcher")
+    graph.add_edge(START, "router")
+    graph.add_edge("router", "researcher")
     graph.add_edge("researcher", "writer")
     graph.add_edge("writer", "reviewer")
 

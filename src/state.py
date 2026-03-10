@@ -5,6 +5,7 @@ from langchain_core.messages import BaseMessage
 class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
     topic: str
+    category: str
     research: str
     report: str
     revision_count: int
