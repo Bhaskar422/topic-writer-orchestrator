@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_tavily import TavilySearch
 from src.state import AgentState
 
 RESEARCH_PROMPTS = {
@@ -22,11 +22,12 @@ RESEARCH_PROMPTS = {
 }
 
 def researcher_agent(state: AgentState) -> dict:
-    search_tool = TavilySearchResults(max_results=5)
-    search_results = search_tool.invoke(state["topic"])
+    search_tool = TavilySearch(max_results=5)
+    search_response = search_tool.invoke(state["topic"])
+    results = search_response.get("results", []) if isinstance(search_response, dict) else []
 
     formatted_results = "\n\n".join(
-        f"Source: {r['url']}\n{r['content']}" for r in search_results
+        f"Source: {r['url']}\n{r['content']}" for r in results
     )
 
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
