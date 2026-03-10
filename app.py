@@ -8,6 +8,7 @@ def main():
         "messages": [],
         "research": "",
         "report": "",
+        "revision_count": 0,
     })
 
     print("=" * 60)
@@ -19,6 +20,10 @@ def main():
     print("FINAL REPORT")
     print("=" * 60)
     print(result["report"])
+    print()
+    print("=" * 60)
+    print(f"REVISIONS: {result['revision_count']}")
+    print("=" * 60)
 
 
 if __name__ == "__main__":

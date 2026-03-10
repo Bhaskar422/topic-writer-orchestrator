@@ -7,3 +7,4 @@ class AgentState(TypedDict):
     topic: str
     research: str
     report: str
+    revision_count: int

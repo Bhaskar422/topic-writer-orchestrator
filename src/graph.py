@@ -4,19 +4,50 @@ from langgraph.graph import StateGraph, START, END
 from src.state import AgentState
 from src.agents.researcher import researcher_agent
 from src.agents.writer import writer_agent
+from src.agents.reviewer import reviewer_agent
 
 load_dotenv()
+
+MAX_REVISIONS = 2
+
+def should_revise(state:AgentState) -> str:
+    """Conditional edge: decides whether to loop back to writer or finish."""
+    last_message = state["messages"][-1].content
+
+    if state["revision_count"] >= MAX_REVISIONS:
+        return "end"
+    
+    if "APPROVED" in last_message:
+        return "end"
+    
+    return "revise"
+
+def increment_revision(state: AgentState) -> dict:
+    """Small passthrough node that bumps the revision counter."""
+    return {"revision_count": state["revision_count"] + 1}
 
 def build_graph():
     graph = StateGraph(AgentState)
 
     graph.add_node("researcher", researcher_agent)
     graph.add_node("writer", writer_agent)
+    graph.add_node("reviewer", reviewer_agent)
+    graph.add_node("increment_revision", increment_revision)
 
     graph.add_edge(START, "researcher")
     graph.add_edge("researcher", "writer")
-    graph.add_edge("writer", END)
+    graph.add_edge("writer", "reviewer")
+
+    graph.add_conditional_edges(
+        "reviewer",
+        should_revise,
+        {
+            "revise": "increment_revision",
+            "end": END,
+        }
+    )
+
+    graph.add_edge("increment_revision", "writer")
 
     return graph.compile()
 
-    
