@@ -9,3 +9,5 @@ class AgentState(TypedDict):
     research: str
     report: str
     revision_count: int
+    quality_review: str
+    fact_check: str
